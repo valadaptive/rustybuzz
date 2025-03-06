@@ -153,7 +153,7 @@ def print_joining_table(f):
             offset = "JOINING_OFFSET_0X%04X" % start
             print("            if (0x%04X..=0x%04X).contains(&u) {" % (start, end))
             print(
-                "                return JOINING_TABLE[u as usize - 0x%04X + %s]"
+                "                return JOINING_TABLE[u as usize - 0x%04X + %s];"
                 % (start, offset)
             )
             print("            }")

@@ -199,3 +199,4 @@ pub fn joining_type(u: char) -> hb_arabic_joining_type_t {
 
     X
 }
+
