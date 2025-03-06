@@ -1131,7 +1131,7 @@ fn initial_reordering_consonant_syllable(
         for i in base + 1..end {
             if buffer.info[i].is_consonant() {
                 for j in last + 1..i {
-                    if (buffer.info[j].indic_position() as u8) < (ot_position_t::POS_SMVD as u8) {
+                    if buffer.info[j].indic_position() < ot_position_t::POS_SMVD {
                         let pos = buffer.info[i].indic_position();
                         buffer.info[j].set_indic_position(pos);
                     }
@@ -1154,7 +1154,7 @@ fn initial_reordering_consonant_syllable(
             buffer.info[i].set_syllable(u8::try_from(i - start).unwrap());
         }
 
-        buffer.info[start..end].sort_by(|a, b| a.indic_position().cmp(&b.indic_position()));
+        buffer.info[start..end].sort_by_key(|a| a.indic_position());
 
         // Find base again; also flip left-matra sequence.
         let mut first_left_mantra = end;
@@ -1653,7 +1653,7 @@ fn final_reordering_impl(
             ^ _hb_glyph_info_ligated_and_didnt_multiply(&buffer.info[start])
     {
         let mut new_reph_pos;
-        loop {
+        'reph: {
             let reph_pos = indic_plan.config.reph_pos;
 
             // 1. If reph should be positioned after post-base consonant forms,
@@ -1681,7 +1681,7 @@ fn final_reordering_impl(
                             new_reph_pos += 1;
                         }
 
-                        break;
+                        break 'reph;
                     }
                 }
 
@@ -1691,14 +1691,14 @@ fn final_reordering_impl(
                 if reph_pos == RephPosition::AfterMain {
                     new_reph_pos = base;
                     while new_reph_pos + 1 < end
-                        && buffer.info[new_reph_pos + 1].indic_position() as u8
-                            <= ot_position_t::POS_AFTER_MAIN as u8
+                        && buffer.info[new_reph_pos + 1].indic_position()
+                            <= ot_position_t::POS_AFTER_MAIN
                     {
                         new_reph_pos += 1;
                     }
 
                     if new_reph_pos < end {
-                        break;
+                        break 'reph;
                     }
                 }
 
@@ -1721,7 +1721,7 @@ fn final_reordering_impl(
                     }
 
                     if new_reph_pos < end {
-                        break;
+                        break 'reph;
                     }
                 }
             }
@@ -1745,7 +1745,7 @@ fn final_reordering_impl(
                     new_reph_pos += 1;
                 }
 
-                break;
+                break 'reph;
             }
             // See https://github.com/harfbuzz/harfbuzz/issues/2298#issuecomment-615318654
 
@@ -1777,7 +1777,7 @@ fn final_reordering_impl(
                 }
             }
 
-            break;
+            break 'reph;
         }
 
         // Move

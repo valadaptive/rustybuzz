@@ -20,6 +20,7 @@ struct Args {
     #[allow(dead_code)]
     remove_default_ignorables: bool,
     unsafe_to_concat: bool,
+    not_found_variation_selector_glyph: Option<u32>,
     cluster_level: harfruzz::BufferClusterLevel,
     features: Vec<String>,
     pre_context: Option<String>,
@@ -48,6 +49,8 @@ fn parse_args(args: Vec<std::ffi::OsString>) -> Result<Args, pico_args::Error> {
         script: parser.opt_value_from_str("--script")?,
         remove_default_ignorables: parser.contains("--remove-default-ignorables"),
         unsafe_to_concat: parser.contains("--unsafe-to-concat"),
+        not_found_variation_selector_glyph: parser
+            .opt_value_from_str("--not-found-variation-selector-glyph")?,
         cluster_level: parser
             .opt_value_from_fn("--cluster-level", parse_cluster)?
             .unwrap_or_default(),
@@ -83,14 +86,14 @@ fn parse_cluster(s: &str) -> Result<harfruzz::BufferClusterLevel, String> {
         "0" => Ok(harfruzz::BufferClusterLevel::MonotoneGraphemes),
         "1" => Ok(harfruzz::BufferClusterLevel::MonotoneCharacters),
         "2" => Ok(harfruzz::BufferClusterLevel::Characters),
-        _ => Err(format!("invalid cluster level")),
+        _ => Err("invalid cluster level".to_string()),
     }
 }
 
 fn parse_unicodes(s: &str) -> Result<String, String> {
     s.split(',')
         .map(|s| {
-            let s = s.strip_prefix("U+").unwrap_or(&s);
+            let s = s.strip_prefix("U+").unwrap_or(s);
             let cp = u32::from_str_radix(s, 16).map_err(|e| format!("{e}"))?;
             char::from_u32(cp).ok_or_else(|| format!("{cp:X} is not a valid codepoint"))
         })
@@ -101,7 +104,7 @@ pub fn shape(font_path: &str, text: &str, options: &str) -> String {
     let args = options
         .split(' ')
         .filter(|s| !s.is_empty())
-        .map(|s| std::ffi::OsString::from(s))
+        .map(std::ffi::OsString::from)
         .collect();
     let args = parse_args(args).unwrap();
 
@@ -131,6 +134,10 @@ pub fn shape(font_path: &str, text: &str, options: &str) -> String {
 
     if let Some(d) = args.direction {
         buffer.set_direction(d);
+    }
+
+    if let Some(g) = args.not_found_variation_selector_glyph {
+        buffer.set_not_found_variation_selector_glyph(g);
     }
 
     if let Some(lang) = args.language {

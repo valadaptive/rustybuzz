@@ -173,7 +173,7 @@ impl<'a> hb_ot_shape_planner_t<'a> {
                 .enable_feature(hb_tag_t::new(b"vert"), F_GLOBAL_SEARCH, 1);
         }
 
-        if user_features.len() != 0 {
+        if !user_features.is_empty() {
             self.ot_map.is_simple = false;
         }
 
@@ -346,7 +346,7 @@ fn substitute_pre(ctx: &mut hb_ot_shape_context_t) {
     hb_ot_substitute_plan(ctx);
 
     if ctx.plan.apply_morx && ctx.plan.apply_gpos {
-        hb_aat_layout_remove_deleted_glyphs(&mut ctx.buffer);
+        hb_aat_layout_remove_deleted_glyphs(ctx.buffer);
     }
 }
 
@@ -355,6 +355,7 @@ fn substitute_post(ctx: &mut hb_ot_shape_context_t) {
         aat_layout::hb_aat_layout_remove_deleted_glyphs(ctx.buffer);
     }
 
+    deal_with_variation_selectors(ctx.buffer);
     hide_default_ignorables(ctx.buffer, ctx.face);
 
     if let Some(func) = ctx.plan.shaper.postprocess_glyphs {
@@ -611,7 +612,7 @@ fn set_unicode_props(buffer: &mut hb_buffer_t) {
         let info = &mut later[0];
         info.init_unicode_props(&mut buffer.scratch_flags);
 
-        let gen_cat = _hb_glyph_info_get_general_category(&info);
+        let gen_cat = _hb_glyph_info_get_general_category(info);
 
         if (rb_flag_unsafe(gen_cat.to_rb())
             & (rb_flag(RB_UNICODE_GENERAL_CATEGORY_LOWERCASE_LETTER)
@@ -852,6 +853,33 @@ fn zero_width_default_ignorables(buffer: &mut hb_buffer_t) {
                 pos.x_offset = 0;
                 pos.y_offset = 0;
             }
+        }
+    }
+}
+
+fn deal_with_variation_selectors(buffer: &mut hb_buffer_t) {
+    if buffer.scratch_flags & HB_BUFFER_SCRATCH_FLAG_HAS_VARIATION_SELECTOR_FALLBACK == 0 {
+        return;
+    }
+
+    // Note: In harfbuzz, this is part of the condition above (with OR), so it needs to stay
+    // in sync.
+    let Some(nf) = buffer.not_found_variation_selector else {
+        return;
+    };
+
+    let count = buffer.len;
+    let info = &mut buffer.info;
+    let pos = &mut buffer.pos;
+
+    for i in 0..count {
+        if _hb_glyph_info_is_variation_selector(&info[i]) {
+            info[i].glyph_id = nf;
+            pos[i].x_advance = 0;
+            pos[i].y_advance = 0;
+            pos[i].x_offset = 0;
+            pos[i].y_offset = 0;
+            _hb_glyph_info_set_variation_selector(&mut info[i], false);
         }
     }
 }

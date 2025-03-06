@@ -11,7 +11,7 @@ Further context in https://github.com/googlefonts/fontations/issues/956.
 `rustybuzz` is a complete [harfbuzz](https://github.com/harfbuzz/harfbuzz)'s
 shaping algorithm port to Rust.
 
-Matches `harfbuzz` [v9.0.0](https://github.com/harfbuzz/harfbuzz/releases/tag/9.0.0).
+Matches `harfbuzz` [v10.1.0](https://github.com/harfbuzz/harfbuzz/releases/tag/10.1.0).
 
 ## Why?
 
@@ -33,10 +33,8 @@ The following conformance issues need to be fixed:
 
 - No font size property. Shaping is always using UnitsPerEm. You should scale the result manually.
 - Most of the TrueType and Unicode handling code was moved into separate crates.
-- harfruzz doesn't interact with any system libraries and must produce exactly the same
-  results on all OS'es and targets.
+- harfruzz doesn't provide any integration with external libraries, so no FreeType, CoreText, or Uniscribe/DirectWrite font-loading integration, and no ICU, or GLib Unicode-functions integration, as well as no `graphite2` library support.
 - `mort` table is not supported, since it's deprecated by Apple.
-- No `graphite` library support.
 
 ## Performance
 
@@ -117,4 +115,4 @@ of the library.
 
 `harfruzz` is licensed under the **MIT** license.
 
-`harfbuzz` is [licensed](https://github.com/harfbuzz/harfbuzz/blob/master/COPYING) under the **Old MIT**
+`harfbuzz` is [licensed](https://github.com/harfbuzz/harfbuzz/blob/main/COPYING) under the **Old MIT**
