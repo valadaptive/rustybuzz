@@ -1,5 +1,5 @@
 use alloc::{borrow::ToOwned, ffi::CString, format};
-use bytemuck::{Pod, Zeroable};
+use bytemuck::{NoUninit, Pod, Zeroable};
 use core::ffi::CStr;
 use ttf_parser::{GlyphId, Tag};
 use wasmi::{self, AsContextMut, Caller, Config, Engine, Linker, Module, Store};
@@ -215,8 +215,8 @@ fn font_get_glyph_v_advance(caller: Caller<'_, ShapingData>, _font: u32, glyph: 
     caller.data().font.glyph_v_advance(GlyphId(glyph as u16))
 }
 
-#[repr(C)]
-#[derive(Clone, Copy, Debug)]
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, Zeroable, NoUninit)]
 enum PointType {
     MoveTo,
     LineTo,
@@ -225,7 +225,7 @@ enum PointType {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, Zeroable, Pod)]
+#[derive(Clone, Copy, Debug, Zeroable, NoUninit)]
 struct OutlinePoint {
     x: f32,
     y: f32,

@@ -11,12 +11,12 @@ fn calculator() {
     // (import "env" "debugprint" (func (;4;) (type 2)))
 
     let calculator_font = include_bytes!("../fonts/text-rendering-tests/Calculator-Regular.ttf");
-    let face = rustybuzz::Face::from_slice(calculator_font, 0).unwrap();
+    let face = harfruzz::Face::from_slice(calculator_font, 0).unwrap();
 
-    let mut buffer = rustybuzz::UnicodeBuffer::new();
+    let mut buffer = harfruzz::UnicodeBuffer::new();
     buffer.push_str("22/7=");
 
-    let res = rustybuzz::shape(&face, &[], buffer)
+    let res = harfruzz::shape(&face, &[], buffer)
         .glyph_infos()
         .iter()
         .map(|i| i.glyph_id)
@@ -46,12 +46,12 @@ fn ruqaa_final_period() {
     // Clusters assignment seems different between Rustybuzz and harfbuzz.
 
     let ruqaa_font = include_bytes!("../../tests/fonts/text-rendering-tests/ArefRuqaa-Wasm.ttf");
-    let face = rustybuzz::Face::from_slice(ruqaa_font, 0).unwrap();
+    let face = harfruzz::Face::from_slice(ruqaa_font, 0).unwrap();
 
-    let mut buffer = rustybuzz::UnicodeBuffer::new();
+    let mut buffer = harfruzz::UnicodeBuffer::new();
     buffer.push_str("أفشوا السلام بينكم.");
 
-    let res = rustybuzz::shape(&face, &[], buffer);
+    let res = harfruzz::shape(&face, &[], buffer);
     let res = res
         .glyph_positions()
         .iter()
@@ -113,12 +113,12 @@ fn ruqaa_no_final_period() {
     // Same success/failure mode.
 
     let ruqaa_font = include_bytes!("../../tests/fonts/text-rendering-tests/ArefRuqaa-Wasm.ttf");
-    let face = rustybuzz::Face::from_slice(ruqaa_font, 0).unwrap();
+    let face = harfruzz::Face::from_slice(ruqaa_font, 0).unwrap();
 
-    let mut buffer = rustybuzz::UnicodeBuffer::new();
+    let mut buffer = harfruzz::UnicodeBuffer::new();
     buffer.push_str("أفشوا السلام بينكم");
 
-    let res = rustybuzz::shape(&face, &[], buffer);
+    let res = harfruzz::shape(&face, &[], buffer);
     let res = res
         .glyph_positions()
         .iter()
