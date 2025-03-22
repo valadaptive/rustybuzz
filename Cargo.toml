@@ -2,6 +2,7 @@
 name = "harfruzz"
 version = "0.0.1"
 edition = "2021"
+rust-version = "1.65.0"
 description = "A complete harfbuzz shaping algorithm port to Rust."
 documentation = "https://docs.rs/harfruzz/"
 readme = "README.md"
@@ -12,10 +13,10 @@ categories = ["text-processing"]
 exclude = ["benches/", "tests/"]
 
 [dependencies]
-bitflags = "2.4.1"
-bytemuck = { version = "1.5", features = ["extern_crate_alloc", "derive"] }
+bitflags = "2.9"
+bytemuck = { version = "1.22", features = ["extern_crate_alloc", "derive"] }
 core_maths = "0.1.0" # only for no_std builds
-smallvec = "1.6"
+smallvec = "1.14"
 unicode-bidi-mirroring = "0.4.0"
 unicode-ccc = "0.4.0"
 unicode-properties = { version = "0.1.3", default-features = false, features = ["general-category"] }
@@ -27,7 +28,7 @@ log = "0.4.22"
 
 # TODO: remove entirely
 [dependencies.ttf-parser]
-version = "0.25.0"
+version = "0.25"
 default-features = false
 features = [
     "opentype-layout",

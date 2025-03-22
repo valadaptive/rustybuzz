@@ -47,6 +47,16 @@ IGNORE_TEST_CASES = [
     # This custom test fails because harfbuzz uses a set digest in AAT to abort early
     # which we don't do yet. Is basically the same as morx_20_005, but with `--show-flags`
     "glyph_flags_002",
+
+    # The glyph extents are shifted 100 units to the right in HarfBuzz due to "undocumented rasterizer behavior"
+    # (see https://github.com/harfbuzz/harfbuzz/blob/462a54895b97cf5a3fd023f4ea5528a9b0e14e0e/src/OT/glyf/Glyph.hh#L520-L528
+    # and https://github.com/harfbuzz/harfbuzz/pull/1999).
+    # ttf-parser currently does not implement this.
+    "colr_011",
+
+    # Requires support in ttf-parser (https://github.com/harfbuzz/ttf-parser/pull/185)
+    "colr_014",
+    "colr_021",
 ]
 
 
@@ -222,6 +232,8 @@ def convert_test_files(root_dir, hb_shape_exe, tests_dir, tests_name, files, cus
                 root_dir, hb_shape_exe, tests_name, file, idx + 1, test, fonts, custom
             )
 
+    # Strip the extra trailing newline to avoid formatting churn
+    rust_code = rust_code[:-1]
     tests_name_snake_case = tests_name.replace("-", "_")
     with open(f"../tests/shaping/{tests_name_snake_case}.rs", "w") as f:
         f.write(rust_code)

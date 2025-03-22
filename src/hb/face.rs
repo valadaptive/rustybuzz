@@ -204,14 +204,7 @@ impl<'a> hb_font_t<'a> {
                 glyph_extents.height = (-f32::from(img.height) * scale).round() as i32;
                 return true;
             }
-        // TODO: Add tests for this. We should use all glyphs from
-        // https://github.com/googlefonts/color-fonts/blob/main/fonts/test_glyphs-glyf_colr_1_no_cliplist.ttf
-        // and test their output against harfbuzz.
         } else if let Some(colr) = self.ttfp_face.tables().colr {
-            if colr.is_simple() {
-                return false;
-            }
-
             if let Some(clip_box) = colr.clip_box(glyph, self.variation_coordinates()) {
                 // Floor
                 glyph_extents.x_bearing = (clip_box.x_min).round() as i32;
@@ -245,7 +238,9 @@ impl<'a> hb_font_t<'a> {
                 glyph_extents.height = (e.y_min - e.y_max) as i32;
             }
 
-            return ret;
+            if ret {
+                return true;
+            }
         }
 
         let mut bbox = None;
